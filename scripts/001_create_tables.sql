@@ -51,7 +51,7 @@ create table if not exists public.jobs (
   job_type text not null check (job_type in ('Full-time', 'Part-time', 'Contract', 'Internship')),
   salary_min integer,
   salary_max integer,
-  currency text default 'USD',
+  currency text default 'INR',
   skills_required text[] default '{}',
   status text not null check (status in ('open', 'closed', 'draft')) default 'draft',
   featured boolean default false,

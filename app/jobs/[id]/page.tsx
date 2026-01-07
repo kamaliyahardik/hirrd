@@ -1,82 +1,82 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Briefcase,
   MapPin,
-  DollarSign,
+  IndianRupee,
   Calendar,
   Loader2,
   BookmarkIcon,
   Share2,
   AlertCircle,
   CheckCircle2,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
 interface Job {
-  id: string
-  title: string
-  description: string
-  location: string
-  job_type: string
-  salary_min?: number
-  salary_max?: number
-  currency: string
-  skills_required: string[]
-  views_count: number
-  created_at: string
-  expires_at?: string
-  companies?: { name: string; logo_url?: string }
+  id: string;
+  title: string;
+  description: string;
+  location: string;
+  job_type: string;
+  salary_min?: number;
+  salary_max?: number;
+  currency: string;
+  skills_required: string[];
+  views_count: number;
+  created_at: string;
+  expires_at?: string;
+  companies?: { name: string; logo_url?: string };
 }
 
 interface Application {
-  id: string
-  status: string
+  id: string;
+  status: string;
 }
 
 export default function JobDetailsPage() {
-  const params = useParams()
-  const router = useRouter()
-  const jobId = params.id as string
-  const [job, setJob] = useState<Job | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isApplying, setIsApplying] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [application, setApplication] = useState<Application | null>(null)
-  const [isSaved, setIsSaved] = useState(false)
-  const [showApplicationForm, setShowApplicationForm] = useState(false)
-  const [coverLetter, setCoverLetter] = useState("")
+  const params = useParams();
+  const router = useRouter();
+  const jobId = params.id as string;
+  const [job, setJob] = useState<Job | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isApplying, setIsApplying] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [application, setApplication] = useState<Application | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
 
-  const supabase = createClient()
+  const supabase = createClient();
 
   useEffect(() => {
     const fetchData = async () => {
       // Get current user
       const {
         data: { user },
-      } = await supabase.auth.getUser()
-      setCurrentUser(user)
+      } = await supabase.auth.getUser();
+      setCurrentUser(user);
 
       // Fetch job details
       const { data: jobData, error: jobError } = await supabase
         .from("jobs")
         .select("*, companies(name, logo_url)")
         .eq("id", jobId)
-        .single()
+        .single();
 
       if (jobError) {
-        console.error("Error fetching job:", jobError)
-        router.push("/jobs")
-        return
+        console.error("Error fetching job:", jobError);
+        router.push("/jobs");
+        return;
       }
 
-      setJob(jobData)
+      setJob(jobData);
 
       // Check if user has already applied
       if (user) {
@@ -85,10 +85,10 @@ export default function JobDetailsPage() {
           .select("*")
           .eq("job_id", jobId)
           .eq("applicant_id", user.id)
-          .single()
+          .single();
 
         if (appData) {
-          setApplication(appData)
+          setApplication(appData);
         }
 
         // Check if job is saved
@@ -97,26 +97,26 @@ export default function JobDetailsPage() {
           .select("*")
           .eq("job_id", jobId)
           .eq("user_id", user.id)
-          .single()
+          .single();
 
         if (savedData) {
-          setIsSaved(true)
+          setIsSaved(true);
         }
       }
 
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    fetchData()
-  }, [jobId, router, supabase])
+    fetchData();
+  }, [jobId, router, supabase]);
 
   const handleApply = async () => {
     if (!currentUser) {
-      router.push("/auth/login")
-      return
+      router.push("/auth/login");
+      return;
     }
 
-    setIsApplying(true)
+    setIsApplying(true);
 
     try {
       const { data, error } = await supabase.from("applications").insert({
@@ -124,55 +124,59 @@ export default function JobDetailsPage() {
         applicant_id: currentUser.id,
         status: "applied",
         cover_letter: coverLetter || null,
-      })
+      });
 
-      if (error) throw error
+      if (error) throw error;
 
       // Refresh to show updated status
-      router.refresh()
-      setShowApplicationForm(false)
-      setCoverLetter("")
+      router.refresh();
+      setShowApplicationForm(false);
+      setCoverLetter("");
     } catch (error) {
-      console.error("Error applying:", error)
+      console.error("Error applying:", error);
     } finally {
-      setIsApplying(false)
+      setIsApplying(false);
     }
-  }
+  };
 
   const handleSaveJob = async () => {
     if (!currentUser) {
-      router.push("/auth/login")
-      return
+      router.push("/auth/login");
+      return;
     }
 
-    setIsSaving(true)
+    setIsSaving(true);
 
     try {
       if (isSaved) {
-        await supabase.from("saved_jobs").delete().eq("job_id", jobId).eq("user_id", currentUser.id)
+        await supabase
+          .from("saved_jobs")
+          .delete()
+          .eq("job_id", jobId)
+          .eq("user_id", currentUser.id);
 
-        setIsSaved(false)
+        setIsSaved(false);
       } else {
         await supabase.from("saved_jobs").insert({
           job_id: jobId,
           user_id: currentUser.id,
-        })
+        });
 
-        setIsSaved(true)
+        setIsSaved(true);
       }
     } catch (error) {
-      console.error("Error saving job:", error)
+      console.error("Error saving job:", error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!job) {
@@ -184,7 +188,7 @@ export default function JobDetailsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   const statusColors = {
@@ -192,13 +196,16 @@ export default function JobDetailsPage() {
     viewed: "bg-yellow-50 border-yellow-200 text-yellow-800",
     shortlisted: "bg-green-50 border-green-200 text-green-800",
     rejected: "bg-red-50 border-red-200 text-red-800",
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
-        <Link href="/jobs" className="text-primary hover:underline text-sm font-medium mb-6 inline-block">
+        <Link
+          href="/jobs"
+          className="text-primary hover:underline text-sm font-medium mb-6 inline-block"
+        >
           ← Back to Jobs
         </Link>
 
@@ -206,8 +213,12 @@ export default function JobDetailsPage() {
         <div className="mb-8">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-2">{job.title}</h1>
-              <p className="text-lg text-muted-foreground">{job.companies?.name || "Company"}</p>
+              <h1 className="text-4xl font-bold text-foreground mb-2">
+                {job.title}
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                {job.companies?.name || "Company"}
+              </p>
             </div>
             <div className="flex gap-2">
               <Button
@@ -217,7 +228,9 @@ export default function JobDetailsPage() {
                 disabled={isSaving}
                 className="bg-transparent"
               >
-                <BookmarkIcon className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`} />
+                <BookmarkIcon
+                  className={`w-5 h-5 ${isSaved ? "fill-current" : ""}`}
+                />
               </Button>
               <Button variant="outline" size="icon" className="bg-transparent">
                 <Share2 className="w-5 h-5" />
@@ -227,7 +240,11 @@ export default function JobDetailsPage() {
 
           {/* Application Status */}
           {application && (
-            <div className={`p-4 rounded-lg border ${statusColors[application.status as keyof typeof statusColors]}`}>
+            <div
+              className={`p-4 rounded-lg border ${
+                statusColors[application.status as keyof typeof statusColors]
+              }`}
+            >
               <div className="flex items-center gap-2">
                 {application.status === "shortlisted" ? (
                   <CheckCircle2 className="w-5 h-5" />
@@ -237,7 +254,11 @@ export default function JobDetailsPage() {
                 <span className="font-medium capitalize">
                   {application.status === "shortlisted"
                     ? "You've been shortlisted for this position!"
-                    : `You ${application.status === "applied" ? "applied" : "were " + application.status} for this job`}
+                    : `You ${
+                        application.status === "applied"
+                          ? "applied"
+                          : "were " + application.status
+                      } for this job`}
                 </span>
               </div>
             </div>
@@ -258,7 +279,9 @@ export default function JobDetailsPage() {
                     <MapPin className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-sm text-muted-foreground">Location</p>
-                      <p className="font-medium text-foreground">{job.location}</p>
+                      <p className="font-medium text-foreground">
+                        {job.location}
+                      </p>
                     </div>
                   </div>
 
@@ -266,17 +289,23 @@ export default function JobDetailsPage() {
                     <Briefcase className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-sm text-muted-foreground">Job Type</p>
-                      <p className="font-medium text-foreground">{job.job_type}</p>
+                      <p className="font-medium text-foreground">
+                        {job.job_type}
+                      </p>
                     </div>
                   </div>
 
                   {job.salary_min && (
                     <div className="flex items-center gap-3">
-                      <DollarSign className="w-5 h-5 text-primary" />
+                      <IndianRupee className="w-5 h-5 text-primary" />
                       <div>
-                        <p className="text-sm text-muted-foreground">Salary Range</p>
+                        <p className="text-sm text-muted-foreground">
+                          Salary Range
+                        </p>
                         <p className="font-medium text-foreground">
-                          {job.salary_min.toLocaleString()} - {job.salary_max?.toLocaleString()} {job.currency}
+                          {job.salary_min.toLocaleString()} -{" "}
+                          {job.salary_max?.toLocaleString()}
+                          {/* {job.currency} */}
                         </p>
                       </div>
                     </div>
@@ -286,7 +315,9 @@ export default function JobDetailsPage() {
                     <Calendar className="w-5 h-5 text-primary" />
                     <div>
                       <p className="text-sm text-muted-foreground">Posted</p>
-                      <p className="font-medium text-foreground">{new Date(job.created_at).toLocaleDateString()}</p>
+                      <p className="font-medium text-foreground">
+                        {new Date(job.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -300,7 +331,9 @@ export default function JobDetailsPage() {
               </CardHeader>
               <CardContent>
                 <div className="prose prose-sm max-w-none">
-                  <p className="text-muted-foreground whitespace-pre-wrap">{job.description}</p>
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {job.description}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -337,9 +370,15 @@ export default function JobDetailsPage() {
                 <CardContent>
                   <div className="space-y-3">
                     <div
-                      className={`p-3 rounded-lg border ${statusColors[application.status as keyof typeof statusColors]}`}
+                      className={`p-3 rounded-lg border ${
+                        statusColors[
+                          application.status as keyof typeof statusColors
+                        ]
+                      }`}
                     >
-                      <p className="font-medium capitalize">{application.status}</p>
+                      <p className="font-medium capitalize">
+                        {application.status}
+                      </p>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       You have already applied for this position. Good luck!
@@ -350,17 +389,24 @@ export default function JobDetailsPage() {
             ) : (
               <>
                 {!showApplicationForm ? (
-                  <Button onClick={() => setShowApplicationForm(true)} className="w-full h-11 mb-4">
+                  <Button
+                    onClick={() => setShowApplicationForm(true)}
+                    className="w-full h-11 mb-4"
+                  >
                     Apply Now
                   </Button>
                 ) : (
                   <Card className="border-border">
                     <CardHeader>
-                      <CardTitle className="text-lg">Submit Application</CardTitle>
+                      <CardTitle className="text-lg">
+                        Submit Application
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium text-foreground block mb-2">Cover Letter</label>
+                        <label className="text-sm font-medium text-foreground block mb-2">
+                          Cover Letter
+                        </label>
                         <textarea
                           placeholder="Tell the recruiter why you're a great fit for this role..."
                           value={coverLetter}
@@ -371,7 +417,11 @@ export default function JobDetailsPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Button onClick={handleApply} disabled={isApplying} className="w-full h-10">
+                        <Button
+                          onClick={handleApply}
+                          disabled={isApplying}
+                          className="w-full h-10"
+                        >
                           {isApplying ? (
                             <>
                               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -405,5 +455,5 @@ export default function JobDetailsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
