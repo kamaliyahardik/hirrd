@@ -413,7 +413,7 @@ export default function LandingPage() {
                   mass: 1,
                 }}
               >
-                Ready to grow your brand?
+                Ready to grow your career or hire faster?
               </motion.h2>
               <motion.p
                 className="max-sm:text-sm text-slate-400 mb-10 max-w-xl mx-auto"
@@ -428,8 +428,7 @@ export default function LandingPage() {
                   delay: 0.2,
                 }}
               >
-                Partner with our agency to design, build and scale digital
-                products that deliver real business results.
+                Partner with Hirrd to connect with verified talent and opportunities that deliver real results.
               </motion.p>
               <motion.div
                 initial={{ y: 60, opacity: 0 }}
@@ -444,7 +443,7 @@ export default function LandingPage() {
                 }}
               >
                 <Button className="px-8 py-3 gap-2">
-                  Start your project <ArrowRightIcon size={20} />
+                  Get Started <ArrowRightIcon size={20} />
                 </Button>
               </motion.div>
             </div>
