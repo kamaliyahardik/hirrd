@@ -1,45 +1,56 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [fullName, setFullName] = useState("")
-  const [role, setRole] = useState("job_seeker")
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<"job_seeker" | "recruiter">("job_seeker")
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState("job_seeker");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<"job_seeker" | "recruiter">(
+    "job_seeker"
+  );
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const roleParam = searchParams.get("role") as "job_seeker" | "recruiter" | null
+    const roleParam = searchParams.get("role") as
+      | "job_seeker"
+      | "recruiter"
+      | null;
     if (roleParam) {
-      setSelectedRole(roleParam)
+      setSelectedRole(roleParam);
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    const supabase = createClient();
+    setIsLoading(true);
+    setError(null);
 
     if (!email || !password || !fullName) {
-      setError("Please fill in all fields")
-      setIsLoading(false)
-      return
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -48,28 +59,36 @@ export default function SignUpPage() {
         password,
         options: {
           emailRedirectTo:
-            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/auth/callback`,
+            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
+            `${window.location.origin}/auth/callback`,
           data: {
             role: selectedRole,
             full_name: fullName,
           },
         },
-      })
+      });
 
-      if (authError) throw authError
-      router.push("/auth/signup-success")
+      if (authError) throw authError;
+      router.push("/auth/signup-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred during signup")
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during signup"
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="border-border">
       <CardHeader>
         <CardTitle className="text-2xl">Create Account</CardTitle>
-        <CardDescription>Join JobHub as a {selectedRole === "recruiter" ? "recruiter" : "job seeker"}</CardDescription>
+        <CardDescription>
+          Join Hirrd as a{" "}
+          {selectedRole === "recruiter" ? "recruiter" : "job seeker"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignUp} className="space-y-4">
@@ -158,13 +177,18 @@ export default function SignUpPage() {
           </Button>
 
           <div className="text-center text-sm">
-            <span className="text-muted-foreground">Already have an account? </span>
-            <Link href="/auth/login" className="text-primary hover:underline font-medium">
+            <span className="text-muted-foreground">
+              Already have an account?{" "}
+            </span>
+            <Link
+              href="/auth/login"
+              className="text-primary hover:underline font-medium"
+            >
               Login
             </Link>
           </div>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

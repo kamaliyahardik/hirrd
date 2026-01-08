@@ -1,34 +1,50 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Home, Briefcase, User, LogOut, Search, Bookmark, BarChart3, Users, Settings, Menu, X } from "lucide-react"
-import { useState } from "react"
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import {
+  Home,
+  Briefcase,
+  User,
+  LogOut,
+  Search,
+  Bookmark,
+  BarChart3,
+  Users,
+  Settings,
+  Menu,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 
 interface SidebarNavProps {
-  userRole?: string
+  userRole?: string;
 }
 
 export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push("/")
-  }
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   const jobSeekerLinks = [
     { href: "/dashboard", label: "Home", icon: Home },
     { href: "/jobs", label: "Browse Jobs", icon: Search },
     { href: "/dashboard/saved-jobs", label: "Saved Jobs", icon: Bookmark },
-    { href: "/dashboard/applications", label: "My Applications", icon: Briefcase },
+    {
+      href: "/dashboard/applications",
+      label: "My Applications",
+      icon: Briefcase,
+    },
     { href: "/dashboard/profile", label: "Profile", icon: User },
-  ]
+  ];
 
   const recruiterLinks = [
     { href: "/dashboard", label: "Home", icon: Home },
@@ -36,9 +52,9 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
     { href: "/dashboard/company", label: "Company", icon: BarChart3 },
     { href: "/dashboard/applicants", label: "Applicants", icon: Users },
     { href: "/dashboard/profile", label: "Profile", icon: User },
-  ]
+  ];
 
-  const links = userRole === "recruiter" ? recruiterLinks : jobSeekerLinks
+  const links = userRole === "recruiter" ? recruiterLinks : jobSeekerLinks;
 
   return (
     <>
@@ -58,14 +74,15 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
       >
         <div className="p-6 border-b border-border">
           <Link href="/" className="text-2xl font-bold text-primary">
-            JobHub
+            Hirrd
           </Link>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-6 px-4">
           <div className="space-y-2">
             {links.map(({ href, label, icon: Icon }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/")
+              const isActive =
+                pathname === href || pathname.startsWith(href + "/");
               return (
                 <Link
                   key={href}
@@ -80,7 +97,7 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
                   <Icon className="w-5 h-5" />
                   <span className="font-medium">{label}</span>
                 </Link>
-              )
+              );
             })}
           </div>
         </nav>
@@ -93,7 +110,11 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
             <Settings className="w-5 h-5" />
             <span className="font-medium">Settings</span>
           </Link>
-          <Button onClick={handleLogout} variant="ghost" className="w-full justify-start gap-3">
+          <Button
+            onClick={handleLogout}
+            variant="ghost"
+            className="w-full justify-start gap-3"
+          >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </Button>
@@ -101,7 +122,12 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
       </aside>
 
       {/* Mobile overlay */}
-      {isOpen && <div className="fixed inset-0 bg-black/50 md:hidden z-30" onClick={() => setIsOpen(false)} />}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 md:hidden z-30"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
     </>
-  )
+  );
 }
