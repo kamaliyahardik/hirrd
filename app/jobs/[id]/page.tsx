@@ -52,6 +52,9 @@ export default function JobDetailsPage() {
   const [isSaved, setIsSaved] = useState(false);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
 
   const supabase = createClient();
 
@@ -62,6 +65,20 @@ export default function JobDetailsPage() {
         data: { user },
       } = await supabase.auth.getUser();
       setCurrentUser(user);
+
+      if (user) {
+        // Fetch user profile
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("resume_url")
+          .eq("id", user.id)
+          .single();
+
+        setUserProfile(profileData);
+        if (profileData?.resume_url) {
+          setResumeUrl(profileData.resume_url);
+        }
+      }
 
       // Fetch job details
       const { data: jobData, error: jobError } = await supabase
@@ -110,9 +127,44 @@ export default function JobDetailsPage() {
     fetchData();
   }, [jobId, router, supabase]);
 
+  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    setIsUploadingResume(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${currentUser.id}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("resumes")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("resumes").getPublicUrl(filePath);
+
+      setResumeUrl(publicUrl);
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      alert("Error uploading resume");
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
+
   const handleApply = async () => {
     if (!currentUser) {
       router.push("/auth/login");
+      return;
+    }
+
+    if (!resumeUrl) {
+      alert("Please upload a resume or select one from your profile");
       return;
     }
 
@@ -124,6 +176,7 @@ export default function JobDetailsPage() {
         applicant_id: currentUser.id,
         status: "applied",
         cover_letter: coverLetter || null,
+        resume_url: resumeUrl,
       });
 
       if (error) throw error;
@@ -403,6 +456,62 @@ export default function JobDetailsPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground block mb-2">
+                          Resume
+                        </label>
+                        <div className="space-y-3">
+                          {resumeUrl && (
+                            <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                              <span className="text-sm truncate flex-1">
+                                Resume attached
+                              </span>
+                              <a
+                                href={resumeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-primary hover:underline"
+                              >
+                                View
+                              </a>
+                            </div>
+                          )}
+
+                          <div className="relative">
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx"
+                              onChange={handleResumeUpload}
+                              disabled={isUploadingResume || isApplying}
+                              className="block w-full text-sm text-slate-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-primary/10 file:text-primary
+                                hover:file:bg-primary/20"
+                            />
+                            {isUploadingResume && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-background/50">
+                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                              </div>
+                            )}
+                          </div>
+                          {userProfile?.resume_url && !resumeUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                setResumeUrl(userProfile.resume_url)
+                              }
+                              type="button"
+                            >
+                              Use Profile Resume
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+
                       <div>
                         <label className="text-sm font-medium text-foreground block mb-2">
                           Cover Letter

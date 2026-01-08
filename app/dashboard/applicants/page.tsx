@@ -1,102 +1,132 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Loader2, Users, MapPin } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Loader2, Users, MapPin, MessageSquare } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import ChatBox from "@/components/Chat/ChatBox";
 
 interface Applicant {
-  id: string
-  status: string
-  created_at: string
-  cover_letter?: string
+  id: string;
+  status: string;
+  created_at: string;
+  cover_letter?: string;
+  applicant_id: string;
+  resume_url?: string;
   users?: {
-    full_name: string
-    location: string
-    bio: string
-  }
+    full_name: string;
+    location: string;
+    bio: string;
+  };
   jobs?: {
-    id: string
-    title: string
-  }
+    id: string;
+    title: string;
+  };
 }
 
 export default function ApplicantsPage() {
-  const [applicants, setApplicants] = useState<Applicant[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [filterStatus, setFilterStatus] = useState<string | null>(null)
-  const router = useRouter()
-  const supabase = createClient()
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
+    null
+  );
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
     const fetchApplicants = async () => {
       const {
         data: { user },
-      } = await supabase.auth.getUser()
+      } = await supabase.auth.getUser();
 
       if (!user) {
-        router.push("/auth/login")
-        return
+        router.push("/auth/login");
+        return;
       }
+
+      setCurrentUserId(user.id);
 
       let query = supabase
         .from("applications")
         .select("*, users(full_name, location, bio), jobs(id, title)")
-        .eq("jobs.recruiter_id", user.id)
+        .eq("jobs.recruiter_id", user.id);
 
       if (filterStatus) {
-        query = query.eq("status", filterStatus)
+        query = query.eq("status", filterStatus);
       }
 
-      const { data, error } = await query.order("created_at", { ascending: false })
+      const { data, error } = await query.order("created_at", {
+        ascending: false,
+      });
 
       if (error) {
-        console.error("Error fetching applicants:", error)
+        console.error("Error fetching applicants:", error);
       } else {
-        setApplicants(data || [])
+        setApplicants(data || []);
       }
 
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    fetchApplicants()
-  }, [router, supabase, filterStatus])
+    fetchApplicants();
+  }, [router, supabase, filterStatus]);
 
   const handleStatusChange = async (applicantId: string, newStatus: string) => {
     try {
-      await supabase.from("applications").update({ status: newStatus }).eq("id", applicantId)
+      await supabase
+        .from("applications")
+        .update({ status: newStatus })
+        .eq("id", applicantId);
 
-      setApplicants((prev) => prev.map((app) => (app.id === applicantId ? { ...app, status: newStatus } : app)))
+      setApplicants((prev) =>
+        prev.map((app) =>
+          app.id === applicantId ? { ...app, status: newStatus } : app
+        )
+      );
     } catch (error) {
-      console.error("Error updating status:", error)
+      console.error("Error updating status:", error);
     }
-  }
+  };
 
   const statusColors = {
     applied: "bg-blue-100 text-blue-800",
     viewed: "bg-yellow-100 text-yellow-800",
     shortlisted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
-  }
+  };
 
-  const uniqueStatuses = ["applied", "viewed", "shortlisted", "rejected"]
+  const uniqueStatuses = ["applied", "viewed", "shortlisted", "rejected"];
 
   if (isLoading) {
     return (
       <div className="p-6 md:p-8 flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="p-6 md:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Applications</h1>
-        <p className="text-muted-foreground">Review and manage applications for your job postings</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">
+          Applications
+        </h1>
+        <p className="text-muted-foreground">
+          Review and manage applications for your job postings
+        </p>
       </div>
 
       {/* Filter */}
@@ -109,7 +139,7 @@ export default function ApplicantsPage() {
           All ({applicants.length})
         </Button>
         {uniqueStatuses.map((status) => {
-          const count = applicants.filter((a) => a.status === status).length
+          const count = applicants.filter((a) => a.status === status).length;
           return (
             <Button
               key={status}
@@ -119,7 +149,7 @@ export default function ApplicantsPage() {
             >
               {status} ({count})
             </Button>
-          )
+          );
         })}
       </div>
 
@@ -137,8 +167,12 @@ export default function ApplicantsPage() {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-foreground mb-1">{applicant.users?.full_name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">Applied for: {applicant.jobs?.title}</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-1">
+                      {applicant.users?.full_name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Applied for: {applicant.jobs?.title}
+                    </p>
 
                     {applicant.users?.location && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
@@ -153,19 +187,39 @@ export default function ApplicantsPage() {
                       </p>
                     )}
 
+                    {applicant.resume_url && (
+                      <a
+                        href={applicant.resume_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline block mb-3"
+                      >
+                        View Resume
+                      </a>
+                    )}
+
                     <p className="text-xs text-muted-foreground">
-                      Applied {new Date(applicant.created_at).toLocaleDateString()}
+                      Applied{" "}
+                      {new Date(applicant.created_at).toLocaleDateString()}
                     </p>
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Badge className={statusColors[applicant.status as keyof typeof statusColors]}>
+                    <Badge
+                      className={
+                        statusColors[
+                          applicant.status as keyof typeof statusColors
+                        ]
+                      }
+                    >
                       {applicant.status}
                     </Badge>
 
                     <select
                       value={applicant.status}
-                      onChange={(e) => handleStatusChange(applicant.id, e.target.value)}
+                      onChange={(e) =>
+                        handleStatusChange(applicant.id, e.target.value)
+                      }
                       className="flex h-9 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       <option value="applied">Applied</option>
@@ -173,6 +227,20 @@ export default function ApplicantsPage() {
                       <option value="shortlisted">Shortlisted</option>
                       <option value="rejected">Rejected</option>
                     </select>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      disabled={applicant.status !== "shortlisted"}
+                      onClick={() => {
+                        setSelectedApplicant(applicant);
+                        setIsChatOpen(true);
+                      }}
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Chat
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -180,6 +248,20 @@ export default function ApplicantsPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0">
+          {selectedApplicant && currentUserId && (
+            <ChatBox
+              applicationId={selectedApplicant.id}
+              currentUserId={currentUserId}
+              otherUserId={selectedApplicant.applicant_id}
+              otherUserName={selectedApplicant.users?.full_name || "Applicant"}
+              status={selectedApplicant.status}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
-  )
+  );
 }
