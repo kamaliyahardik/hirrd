@@ -17,6 +17,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import Navbar from "@/components/Home/Navbar";
 
 interface Job {
   id: string;
@@ -171,22 +173,33 @@ export default function JobDetailsPage() {
     setIsApplying(true);
 
     try {
-      const { data, error } = await supabase.from("applications").insert({
-        job_id: jobId,
-        applicant_id: currentUser.id,
-        status: "applied",
-        cover_letter: coverLetter || null,
-        resume_url: resumeUrl,
-      });
+      const { data, error } = await supabase
+        .from("applications")
+        .insert({
+          job_id: jobId,
+          applicant_id: currentUser.id,
+          status: "applied",
+          cover_letter: coverLetter || null,
+          resume_url: resumeUrl,
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      // Refresh to show updated status
+      // Update local state immediately
+      setApplication(data);
+
+      // Show success notification
+      toast.success("Application submitted successfully!");
+
+      // Refresh to ensure data consistency
       router.refresh();
       setShowApplicationForm(false);
       setCoverLetter("");
     } catch (error) {
       console.error("Error applying:", error);
+      toast.error("Failed to submit application. Please try again.");
     } finally {
       setIsApplying(false);
     }
@@ -252,7 +265,9 @@ export default function JobDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <>
+      <Navbar/>
+    <div className="min-h-screen bg-background py-8 pt-25">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <Link
@@ -564,5 +579,6 @@ export default function JobDetailsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

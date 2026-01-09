@@ -14,6 +14,7 @@ import {
   BookmarkIcon,
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
+import Navbar from "@/components/Home/Navbar";
 
 interface Job {
   id: string;
@@ -75,7 +76,9 @@ export default function JobsPage() {
   }, [searchTerm, locationFilter, supabase]);
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <>
+    <Navbar/>
+    <div className="min-h-screen bg-background py-8 pt-25">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-4">
             <Link
@@ -174,5 +177,6 @@ export default function JobsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

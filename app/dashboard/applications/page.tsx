@@ -87,6 +87,7 @@ export default function ApplicationsPage() {
   }
 
   return (
+    <>
     <div className="p-6 md:p-8 max-w-4xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -192,5 +193,6 @@ export default function ApplicationsPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
