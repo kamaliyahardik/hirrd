@@ -6,10 +6,48 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import GitHubStar from "@/components/Home/GitHubStar"
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  };
+
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const {
+          data: { user: authUser },
+        } = await supabase.auth.getUser();
+        if (authUser) {
+          const { data: userData } = await supabase
+            .from("users")
+            .select("full_name")
+            .eq("id", authUser.id)
+            .single();
+          setUser({ ...authUser, full_name: userData?.full_name });
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getUser();
+  }, []);
+
   const navLinks = [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
@@ -50,17 +88,40 @@ const Navbar = () => {
               ))}
             </div>
 
+            {/* github star btn */}
+            <GitHubStar />
+            
             {/* Desktop Buttons */}
             <div className="hidden md:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                className="text-gray-300 hover:text-black"
-              >
-                <Link href="/auth/login">Login</Link>
-              </Button>
-              <Button className="bg-primary hover:bg-primary/90 shadow-md shadow-primary/30">
-                <Link href="/auth/signup">Get Started</Link>
-              </Button>
+              {loading ? null : user ? (
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-300 hover:text-white font-medium"
+                  >
+                    {user.full_name || "Dashboard"}
+                  </Link>
+                  <Button
+                    onClick={handleLogout}
+                    variant="ghost"
+                    className="text-gray-300 hover:text-white hover:bg-white/10"
+                  >
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-300 hover:text-black"
+                  >
+                    <Link href="/auth/login">Login</Link>
+                  </Button>
+                  <Button className="bg-primary hover:bg-primary/90 shadow-md shadow-primary/30">
+                    <Link href="/auth/signup">Get Started</Link>
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -90,20 +151,44 @@ const Navbar = () => {
             </a>
           ))}
 
-          <Button
-            variant="ghost"
-            className="text-gray-200 hover:text-white"
-            onClick={() => setIsOpen(false)}
-          >
-            <Link href="/auth/login">Login</Link>
-          </Button>
+          {loading ? null : user ? (
+            <>
+              <Link
+                href="/dashboard"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-200 hover:text-white transition"
+              >
+                {user.full_name || "Dashboard"}
+              </Link>
+              <Button
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+                variant="ghost"
+                className="text-gray-200 hover:text-white hover:bg-white/10"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                className="text-gray-200 hover:text-white"
+                onClick={() => setIsOpen(false)}
+              >
+                <Link href="/auth/login">Login</Link>
+              </Button>
 
-          <Button
-            className="bg-primary hover:bg-primary/90 shadow-md shadow-primary/30"
-            onClick={() => setIsOpen(false)}
-          >
-            <Link href="/auth/signup">Get Started</Link>
-          </Button>
+              <Button
+                className="bg-primary hover:bg-primary/90 shadow-md shadow-primary/30"
+                onClick={() => setIsOpen(false)}
+              >
+                <Link href="/auth/signup">Get Started</Link>
+              </Button>
+            </>
+          )}
 
           <button
             onClick={() => setIsOpen(false)}

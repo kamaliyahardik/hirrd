@@ -1,6 +1,6 @@
 import React from 'react'
 import AnimatedContent from "@/components/AnimatedContent";
-import {TwitterIcon, LinkedinIcon, InstagramIcon } from "lucide-react"
+import {TwitterIcon, LinkedinIcon, InstagramIcon, Github } from "lucide-react"
 import Image from "next/image";
 
 
@@ -30,17 +30,21 @@ const Footer = () => {
                     <div>
                         <p className="uppercase font-semibold text-black text-base">Social</p>
                         <AnimatedContent className="flex flex-col mt-6 gap-3">
-                            <a href="https://prebuiltui.com?ref=buildify" className="flex items-center gap-2 text-black">
+                            <a href="#" className="flex items-center gap-2 text-black">
                                 <TwitterIcon size={20} />
                                 <p>Twitter</p>
                             </a>
-                            <a href="https://prebuiltui.com?ref=buildify" className="flex items-center gap-2 text-black">
+                            <a href="#" className="flex items-center gap-2 text-black">
                                 <LinkedinIcon size={20} />
                                 <p>Linkedin</p>
                             </a>
-                            <a href="https://prebuiltui.com?ref=buildify" className="flex items-center gap-2 text-black">
+                            <a href="#" className="flex items-center gap-2 text-black">
                                 <InstagramIcon size={20} />
                                 <p>Instagram</p>
+                            </a>
+                            <a href="https://github.com/kamaliyahardik/hirrd" className="flex items-center gap-2 text-black" target="_blank">
+                                <Github size={20} />
+                                <p>GitHub</p>
                             </a>
                         </AnimatedContent>
                     </div>

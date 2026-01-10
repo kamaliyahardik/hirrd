@@ -66,9 +66,15 @@ export default function JobDetailsPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      setCurrentUser(user);
-
+      
       if (user) {
+        const { data: userData } = await supabase
+          .from("users")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+        setCurrentUser({ ...user, full_name: userData?.full_name });
+
         // Fetch user profile
         const { data: profileData } = await supabase
           .from("profiles")
@@ -80,6 +86,8 @@ export default function JobDetailsPage() {
         if (profileData?.resume_url) {
           setResumeUrl(profileData.resume_url);
         }
+      } else {
+        setCurrentUser(null);
       }
 
       // Fetch job details

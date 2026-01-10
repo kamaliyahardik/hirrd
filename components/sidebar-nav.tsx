@@ -32,6 +32,7 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
+    router.refresh();
   };
 
   const jobSeekerLinks = [
