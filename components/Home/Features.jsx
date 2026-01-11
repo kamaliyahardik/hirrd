@@ -64,18 +64,18 @@ const Features = () => {
                 dir="left"
                 icon={SparkleIcon}
                 title="Core features"
-                subtitle="Everything you need to build, deploy and scale AI agents - designed for speed, reliability and real-world production use."
+                subtitle="Everything you need to find jobs, hire talent, and grow your career — built for speed, trust, and real-world hiring."
               />
               <AnimatedContent className="p-4 md:p-6 bg-black w-full rounded-xl mt-12">
                 <p className="text-lg text-white">
-                  Trusted by teams building intelligent products with AI agents.
+                  Trusted by teams and professionals using Hirrd to build successful careers.
                 </p>
 
                 <a
-                  href="#"
+                  href="/jobs"
                   className="bg-white w-max hover:bg-gray-100 px-5 py-2 rounded-full mt-6 flex items-center gap-1"
                 >
-                  Explore
+                  Explore Jobs
                   <ArrowUpRightIcon size={20} />
                 </a>
               </AnimatedContent>

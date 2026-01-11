@@ -1,6 +1,6 @@
 import React from 'react'
 import AnimatedContent from "@/components/AnimatedContent";
-import {TwitterIcon, LinkedinIcon, InstagramIcon, Github } from "lucide-react"
+import {TwitterIcon, LinkedinIcon, InstagramIcon, Github, Mail } from "lucide-react"
 import Image from "next/image";
 
 
@@ -25,26 +25,30 @@ const Footer = () => {
                             height={40}
                             className="h-9"
                         />
-                        <p className="text-black mt-4 pb-6">For further assistance or additional inquiries, feel free to contact us</p>
+                        <p className="text-black mt-4 pb-6">For further assistance or additional inquiries, feel free to <a className='hover:underline text-lg' href="mailto:helphirrd@gmail.com" target='_blank'>contact us</a></p>
                     </AnimatedContent>
                     <div>
                         <p className="uppercase font-semibold text-black text-base">Social</p>
                         <AnimatedContent className="flex flex-col mt-6 gap-3">
-                            <a href="#" className="flex items-center gap-2 text-black">
+                            <a href="https://x.com/hardik_kamliyaa" className="flex items-center gap-2 text-black">
                                 <TwitterIcon size={20} />
                                 <p>Twitter</p>
                             </a>
-                            <a href="#" className="flex items-center gap-2 text-black">
+                            <a href="https://www.linkedin.com/in/hardik-kamaliya/" className="flex items-center gap-2 text-black">
                                 <LinkedinIcon size={20} />
                                 <p>Linkedin</p>
                             </a>
-                            <a href="#" className="flex items-center gap-2 text-black">
+                            <a href="https://www.instagram.com/hardik.kamaliya_" className="flex items-center gap-2 text-black">
                                 <InstagramIcon size={20} />
                                 <p>Instagram</p>
                             </a>
                             <a href="https://github.com/kamaliyahardik/hirrd" className="flex items-center gap-2 text-black" target="_blank">
                                 <Github size={20} />
                                 <p>GitHub</p>
+                            </a>
+                            <a href="mailto:helphirrd@gmail.com" className="flex items-center gap-2 text-black" target="_blank">
+                                <Mail size={20} />
+                                <p>Support</p>
                             </a>
                         </AnimatedContent>
                     </div>

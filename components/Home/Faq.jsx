@@ -80,7 +80,7 @@ const Faq = () => {
                 </h3>
 
                 <a
-                  href="https://prebuiltui.com?ref=buildify"
+                  href="mailto:helphirrd@gmail.com"
                   className="bg-white w-max shrink-0 hover:bg-gray-100 px-5 py-2 rounded-full"
                 >
                   Contact support
