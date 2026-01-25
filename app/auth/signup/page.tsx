@@ -126,7 +126,7 @@ export default function SignUpPage() {
               id="fullName"
               type="text"
               placeholder="John Doe"
-              value={fullName}
+              value={fullName}  
               onChange={(e) => setFullName(e.target.value)}
               disabled={isLoading}
               className="h-10"
@@ -188,7 +188,7 @@ export default function SignUpPage() {
             </Link>
           </div>
         </form>
-      </CardContent>
+        </CardContent>
     </Card>
   );
 }

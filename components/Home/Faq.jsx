@@ -80,7 +80,8 @@ const Faq = () => {
                 </h3>
 
                 <a
-                  href="mailto:helphirrd@gmail.com"
+                  target="_blank"
+                  href="mailto:hirrd.help@gmail.com"
                   className="bg-white w-max shrink-0 hover:bg-gray-100 px-5 py-2 rounded-full"
                 >
                   Contact support

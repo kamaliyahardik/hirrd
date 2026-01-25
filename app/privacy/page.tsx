@@ -80,7 +80,7 @@ export default function PrivacyPage() {
             </h2>
             <p className="text-muted-foreground">
               If you have any questions about this Privacy Policy, please
-              contact us at privacy@Hirrd.com.
+              contact us at <a className="hover:underline hover:text-black" target="_blank" href="mailto:hirrd.help@gmail.com">hirrd.help@gmail.com</a>.
             </p>
           </section>
         </div>

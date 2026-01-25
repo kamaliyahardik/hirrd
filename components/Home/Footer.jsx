@@ -25,7 +25,7 @@ const Footer = () => {
                             height={40}
                             className="h-9"
                         />
-                        <p className="text-black mt-4 pb-6">For further assistance or additional inquiries, feel free to <a className='hover:underline text-lg' href="mailto:helphirrd@gmail.com" target='_blank'>contact us</a></p>
+                        <p className="text-black mt-4 pb-6">For further assistance or additional inquiries, feel free to <a className='hover:underline text-lg' href="mailto:hirrd.help@gmail.com" target='_blank'>contact us</a></p>
                     </AnimatedContent>
                     <div>
                         <p className="uppercase font-semibold text-black text-base">Social</p>
@@ -46,7 +46,7 @@ const Footer = () => {
                                 <Github size={20} />
                                 <p>GitHub</p>
                             </a>
-                            <a href="mailto:helphirrd@gmail.com" className="flex items-center gap-2 text-black" target="_blank">
+                            <a href="mailto:hirrd.help@gmail.com" className="flex items-center gap-2 text-black" target="_blank">
                                 <Mail size={20} />
                                 <p>Support</p>
                             </a>
