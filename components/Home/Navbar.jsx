@@ -113,11 +113,11 @@ const Navbar = () => {
                 <>
                   <Button
                     variant="ghost"
-                    className="text-gray-300 hover:text-black"
+                    className="text-gray-300 hover:text-black cursor-pointer"
                   >
                     <Link href="/auth/login">Login</Link>
                   </Button>
-                  <Button className="bg-primary hover:bg-primary/90 shadow-md shadow-primary/30">
+                  <Button className="bg-primary shadow-md shadow-primary/30 hover:bg-white hover:text-black">
                     <Link href="/auth/signup">Get Started</Link>
                   </Button>
                 </>
