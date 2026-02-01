@@ -6,7 +6,13 @@ import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Briefcase, MapPin, MessageSquare } from "lucide-react";
+import {
+  Loader2,
+  Briefcase,
+  MapPin,
+  MessageSquare,
+  CheckCircle2,
+} from "lucide-react";
 import Link from "next/link";
 import {
   Dialog,
@@ -76,6 +82,7 @@ export default function ApplicationsPage() {
     viewed: "bg-yellow-100 text-yellow-800",
     shortlisted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
+    hired: "bg-purple-100 text-purple-800",
   };
 
   if (isLoading) {
@@ -88,111 +95,127 @@ export default function ApplicationsPage() {
 
   return (
     <>
-    <div className="p-6 md:p-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">
-          My Applications
-        </h1>
-        <p className="text-muted-foreground">
-          Track the status of your job applications
-        </p>
-      </div>
+      <div className="p-6 md:p-8 max-w-4xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            My Applications
+          </h1>
+          <p className="text-muted-foreground">
+            Track the status of your job applications
+          </p>
+        </div>
 
-      {applications.length === 0 ? (
-        <Card className="border-border">
-          <CardContent className="pt-12 pb-12 text-center">
-            <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground mb-4">
-              You haven't applied to any jobs yet
-            </p>
-            <Link
-              href="/jobs"
-              className="text-primary hover:underline font-medium"
-            >
-              Browse jobs
-            </Link>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {applications.map((application) => (
-            <Card
-              key={application.id}
-              className="border-border hover:shadow-lg transition-shadow"
-            >
-              <CardContent className="pt-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <Link
-                      href={`/jobs/${application.jobs?.id}`}
-                      className="block group"
-                    >
-                      <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                        {application.jobs?.title}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {application.jobs?.companies?.name}
-                    </p>
+        {applications.length === 0 ? (
+          <Card className="border-border">
+            <CardContent className="pt-12 pb-12 text-center">
+              <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground mb-4">
+                You haven't applied to any jobs yet
+              </p>
+              <Link
+                href="/jobs"
+                className="text-primary hover:underline font-medium"
+              >
+                Browse jobs
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {applications.map((application) => (
+              <Card
+                key={application.id}
+                className="border-border hover:shadow-lg transition-shadow"
+              >
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <Link
+                        href={`/jobs/${application.jobs?.id}`}
+                        className="block group"
+                      >
+                        <h3 className="text-lg font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {application.jobs?.title}
+                        </h3>
+                      </Link>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {application.jobs?.companies?.name}
+                      </p>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {application.jobs?.location}
-                      </div>
-                      <div>
-                        {new Date(application.created_at).toLocaleDateString()}
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {application.jobs?.location}
+                        </div>
+                        <div>
+                          {new Date(
+                            application.created_at,
+                          ).toLocaleDateString()}
+                        </div>
                       </div>
                     </div>
+
+                    <div className="flex flex-col gap-2 items-end">
+                      <Badge
+                        className={`capitalize ${
+                          statusColors[
+                            application.status as keyof typeof statusColors
+                          ]
+                        }`}
+                      >
+                        {application.status}
+                      </Badge>
+
+                      {application.status === "hired" && (
+                        <div className="flex items-center gap-1 text-green-600 animate-in fade-in slide-in-from-bottom-2">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span className="text-xs font-semibold">
+                            Congratulations! You are hired!
+                          </span>
+                        </div>
+                      )}
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          application.status !== "shortlisted" &&
+                          application.status !== "hired"
+                        }
+                        onClick={() => {
+                          setSelectedApplication(application);
+                          setIsChatOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Chat
+                      </Button>
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-                  <div className="flex flex-col gap-2 items-end">
-                    <Badge
-                      className={`capitalize ${
-                        statusColors[
-                          application.status as keyof typeof statusColors
-                        ]
-                      }`}
-                    >
-                      {application.status}
-                    </Badge>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={application.status !== "shortlisted"}
-                      onClick={() => {
-                        setSelectedApplication(application);
-                        setIsChatOpen(true);
-                      }}
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Chat
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0">
-          {selectedApplication && currentUserId && selectedApplication.jobs && (
-            <ChatBox
-              applicationId={selectedApplication.id}
-              currentUserId={currentUserId}
-              otherUserId={selectedApplication.jobs.recruiter_id}
-              otherUserName={
-                selectedApplication.jobs.companies?.name || "Recruiter"
-              }
-              status={selectedApplication.status}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+        <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
+          <DialogContent className="sm:max-w-[500px] p-0">
+            {selectedApplication &&
+              currentUserId &&
+              selectedApplication.jobs && (
+                <ChatBox
+                  applicationId={selectedApplication.id}
+                  currentUserId={currentUserId}
+                  otherUserId={selectedApplication.jobs.recruiter_id}
+                  otherUserName={
+                    selectedApplication.jobs.companies?.name || "Recruiter"
+                  }
+                  status={selectedApplication.status}
+                />
+              )}
+          </DialogContent>
+        </Dialog>
+      </div>
     </>
   );
 }

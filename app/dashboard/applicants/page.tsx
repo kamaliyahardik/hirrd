@@ -14,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import ChatBox from "@/components/Chat/ChatBox";
 
 interface Applicant {
@@ -40,7 +41,7 @@ export default function ApplicantsPage() {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
-    null
+    null,
   );
   const [isChatOpen, setIsChatOpen] = useState(false);
   const router = useRouter();
@@ -86,18 +87,22 @@ export default function ApplicantsPage() {
 
   const handleStatusChange = async (applicantId: string, newStatus: string) => {
     try {
-      await supabase
+      const { error } = await supabase
         .from("applications")
         .update({ status: newStatus })
         .eq("id", applicantId);
 
+      if (error) throw error;
+
       setApplicants((prev) =>
         prev.map((app) =>
-          app.id === applicantId ? { ...app, status: newStatus } : app
-        )
+          app.id === applicantId ? { ...app, status: newStatus } : app,
+        ),
       );
+      toast.success("Status updated successfully");
     } catch (error) {
       console.error("Error updating status:", error);
+      toast.error("Failed to update status");
     }
   };
 
@@ -106,9 +111,16 @@ export default function ApplicantsPage() {
     viewed: "bg-yellow-100 text-yellow-800",
     shortlisted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
+    hired: "bg-purple-100 text-purple-800",
   };
 
-  const uniqueStatuses = ["applied", "viewed", "shortlisted", "rejected"];
+  const uniqueStatuses = [
+    "applied",
+    "viewed",
+    "shortlisted",
+    "rejected",
+    "hired",
+  ];
 
   if (isLoading) {
     return (
@@ -226,13 +238,17 @@ export default function ApplicantsPage() {
                       <option value="viewed">Viewed</option>
                       <option value="shortlisted">Shortlisted</option>
                       <option value="rejected">Rejected</option>
+                      <option value="hired">Hired</option>
                     </select>
 
                     <Button
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      disabled={applicant.status !== "shortlisted"}
+                      disabled={
+                        applicant.status !== "shortlisted" &&
+                        applicant.status !== "hired"
+                      }
                       onClick={() => {
                         setSelectedApplicant(applicant);
                         setIsChatOpen(true);

@@ -52,7 +52,6 @@ export function SidebarNav({ userRole = "job_seeker" }: SidebarNavProps) {
     { href: "/dashboard/jobs", label: "My Jobs", icon: Briefcase },
     { href: "/dashboard/company", label: "Company", icon: BarChart3 },
     { href: "/dashboard/applicants", label: "Applicants", icon: Users },
-    { href: "/dashboard/profile", label: "Profile", icon: User },
   ];
 
   const links = userRole === "recruiter" ? recruiterLinks : jobSeekerLinks;

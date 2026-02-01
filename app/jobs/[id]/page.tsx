@@ -270,6 +270,7 @@ export default function JobDetailsPage() {
     viewed: "bg-yellow-50 border-yellow-200 text-yellow-800",
     shortlisted: "bg-green-50 border-green-200 text-green-800",
     rejected: "bg-red-50 border-red-200 text-red-800",
+    hired: "bg-purple-50 border-purple-200 text-purple-800",
   };
 
   return (
@@ -322,7 +323,7 @@ export default function JobDetailsPage() {
               }`}
             >
               <div className="flex items-center gap-2">
-                {application.status === "shortlisted" ? (
+                {application.status === "shortlisted" || application.status === "hired" ? (
                   <CheckCircle2 className="w-5 h-5" />
                 ) : (
                   <AlertCircle className="w-5 h-5" />
@@ -330,8 +331,10 @@ export default function JobDetailsPage() {
                 <span className="font-medium capitalize">
                   {application.status === "shortlisted"
                     ? "You've been shortlisted for this position!"
-                    : `You ${
-                        application.status === "applied"
+                  : application.status === "hired"
+                  ? "Congratulations! You are hired!"
+                  : `You ${
+                      application.status === "applied"
                           ? "applied"
                           : "were " + application.status
                       } for this job`}
