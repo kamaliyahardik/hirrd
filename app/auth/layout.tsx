@@ -1,4 +1,11 @@
 import type React from "react"
+import { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Authentication | Hirrd",
+  description: "Login or Sign up to Hirrd to find jobs or hire talent.",
+}
+
 export default function AuthLayout({
   children,
 }: {
