@@ -15,7 +15,7 @@ async function runMigrations() {
     console.log("Connected to database.");
 
     const sqlFiles = [
-      "scripts/005_update_message_policy.sql",
+      "scripts/004_update_application_status.sql",
     ];
 
     for (const file of sqlFiles) {
