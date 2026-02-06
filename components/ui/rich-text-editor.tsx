@@ -4,11 +4,9 @@ import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import "./rich-text-editor.css"; // We'll create this to override styles
 
-const ReactQuill = dynamic(() => import("react-quill-new"), {
+const ReactQuill = dynamic(() => import("react-quill-new"), { 
   ssr: false,
-  loading: () => (
-    <div className="h-[200px] w-full bg-muted/20 animate-pulse rounded-md" />
-  ),
+  loading: () => <div className="h-[200px] w-full bg-muted/20 animate-pulse rounded-md" />
 });
 
 interface RichTextEditorProps {

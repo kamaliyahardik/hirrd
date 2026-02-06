@@ -57,10 +57,7 @@ export default function CreateJobPage() {
         return;
       }
 
-      if (
-        !formData.description ||
-        formData.description.replace(/<[^>]*>/g, "").trim().length === 0
-      ) {
+      if (!formData.description || formData.description.replace(/<[^>]*>/g, "").trim().length === 0) {
         alert("Please enter a job description");
         setIsSubmitting(false);
         return;

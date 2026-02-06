@@ -398,7 +398,7 @@ export default function JobDetailsContent({ job }: JobDetailsContentProps) {
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {job.skills_required.map((skill) => (
-                        <span
+                        <span   
                           key={skill}
                           className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium"
                         >
