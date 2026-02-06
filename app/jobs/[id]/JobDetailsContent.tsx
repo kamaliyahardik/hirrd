@@ -382,11 +382,10 @@ export default function JobDetailsContent({ job }: JobDetailsContentProps) {
                   <CardTitle className="text-lg">About the Job</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="prose prose-sm max-w-none">
-                    <p className="text-muted-foreground whitespace-pre-wrap">
-                      {job.description}
-                    </p>
-                  </div>
+                  <div
+                    className="prose prose-sm max-w-none text-muted-foreground rich-text-content"
+                    dangerouslySetInnerHTML={{ __html: job.description }}
+                  />
                 </CardContent>
               </Card>
 

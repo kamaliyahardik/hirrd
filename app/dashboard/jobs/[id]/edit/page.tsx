@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +13,9 @@ import RichTextEditor from "@/components/ui/rich-text-editor";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
-export default function CreateJobPage() {
-  const [isLoading, setIsLoading] = useState(false);
+export default function EditJobPage() {
+  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userCompany, setUserCompany] = useState<any>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -28,73 +27,107 @@ export default function CreateJobPage() {
     skills: "",
   });
   const router = useRouter();
+  const params = useParams();
   const supabase = createClient();
+
+  useEffect(() => {
+    const fetchJob = async () => {
+      try {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+            router.push("/auth/login");
+            return;
+        }
+
+        const { data: job, error } = await supabase
+          .from("jobs")
+          .select("*")
+          .eq("id", params.id)
+          .single();
+
+        if (error) throw error;
+        if (!job) {
+            alert("Job not found");
+            router.push("/dashboard/jobs");
+            return;
+        }
+
+        // Verify ownership
+        if (job.recruiter_id !== user.id) {
+            alert("Unauthorized");
+            router.push("/dashboard/jobs");
+            return;
+        }
+
+        setFormData({
+          title: job.title,
+          description: job.description || "",
+          location: job.location,
+          job_type: job.job_type,
+          salary_min: job.salary_min ? job.salary_min.toString() : "",
+          salary_max: job.salary_max ? job.salary_max.toString() : "",
+          currency: job.currency,
+          skills: job.skills_required ? job.skills_required.join(", ") : "",
+        });
+      } catch (error) {
+        console.error("Error fetching job:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (params.id) {
+        fetchJob();
+    }
+  }, [params.id, router, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-
     try {
-      // Get user's company
-      const { data: companyData } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("recruiter_id", user.id)
-        .single();
-
-      if (!companyData) {
-        alert("Please set up your company profile first");
-        router.push("/dashboard/company");
-        return;
-      }
-
-      if (
-        !formData.description ||
-        formData.description.replace(/<[^>]*>/g, "").trim().length === 0
-      ) {
+      if (!formData.description || formData.description.replace(/<[^>]*>/g, "").trim().length === 0) {
         alert("Please enter a job description");
         setIsSubmitting(false);
         return;
       }
 
-      const { error } = await supabase.from("jobs").insert({
-        company_id: companyData.id,
-        recruiter_id: user.id,
-        title: formData.title,
-        description: formData.description,
-        location: formData.location,
-        job_type: formData.job_type,
-        salary_min: formData.salary_min
-          ? Number.parseInt(formData.salary_min)
-          : null,
-        salary_max: formData.salary_max
-          ? Number.parseInt(formData.salary_max)
-          : null,
-        currency: formData.currency,
-        skills_required: formData.skills.split(",").map((s) => s.trim()),
-        status: "open",
-      });
+      const { error } = await supabase
+        .from("jobs")
+        .update({
+            title: formData.title,
+            description: formData.description,
+            location: formData.location,
+            job_type: formData.job_type,
+            salary_min: formData.salary_min ? Number.parseInt(formData.salary_min) : null,
+            salary_max: formData.salary_max ? Number.parseInt(formData.salary_max) : null,
+            currency: formData.currency,
+            skills_required: formData.skills.split(",").map((s) => s.trim()),
+        })
+        .eq("id", params.id);
 
       if (error) throw error;
 
       router.push("/dashboard/jobs");
       router.refresh();
     } catch (error) {
-      console.error("Error creating job:", error);
-      alert("Failed to create job posting");
+      console.error("Error updating job:", error);
+      alert("Failed to update job posting");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center min-h-[50vh]">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-2xl">
@@ -106,10 +139,10 @@ export default function CreateJobPage() {
           ← Back to Jobs
         </Link>
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Post a New Job
+          Edit Job
         </h1>
         <p className="text-muted-foreground">
-          Create a job listing to find the perfect candidate
+          Update your job listing details
         </p>
       </div>
 
@@ -227,10 +260,10 @@ export default function CreateJobPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Publishing Job...
+                    Updating Job...
                   </>
                 ) : (
-                  "Publish Job"
+                  "Update Job"
                 )}
               </Button>
             </div>
