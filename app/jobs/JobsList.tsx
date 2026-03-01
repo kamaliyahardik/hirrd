@@ -31,6 +31,11 @@ interface Job {
 }
 
 export default function JobsList() {
+  const htmlToText = (html: string, maxLen = 200) => {
+    const withoutTags = html.replace(/<[^>]*>/g, " ");
+    const collapsed = withoutTags.replace(/\s+/g, " ").trim();
+    return collapsed.length > maxLen ? `${collapsed.slice(0, maxLen)}…` : collapsed;
+  };
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -168,7 +173,7 @@ export default function JobsList() {
                             {job.companies?.name || "Company"}
                           </p>
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                            {job.description}
+                            {htmlToText(job.description)}
                           </p>
 
                           <div className="flex flex-wrap gap-4 text-sm">
@@ -183,9 +188,8 @@ export default function JobsList() {
                             {job.salary_min && (
                               <div className="flex items-center gap-2 text-muted-foreground">
                                 <IndianRupee className="w-4 h-4" />
-                                {`${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} ${
-                                  job.currency
-                                }`}
+                                {`${job.salary_min.toLocaleString()} - ${job.salary_max?.toLocaleString()} ${job.currency
+                                  }`}
                               </div>
                             )}
                           </div>

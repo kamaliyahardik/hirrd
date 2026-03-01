@@ -58,9 +58,6 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          emailRedirectTo:
-            process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-            `${window.location.origin}/auth/callback`,
           data: {
             role: selectedRole,
             full_name: fullName,
@@ -69,7 +66,8 @@ export default function SignUpPage() {
       });
 
       if (authError) throw authError;
-      router.push("/auth/signup-success");
+
+      router.push("/auth/login");
     } catch (error: unknown) {
       setError(
         error instanceof Error
@@ -97,22 +95,20 @@ export default function SignUpPage() {
             <button
               type="button"
               onClick={() => setSelectedRole("job_seeker")}
-              className={`py-2 px-4 rounded-lg font-medium transition-colors ${
-                selectedRole === "job_seeker"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
+              className={`py-2 px-4 rounded-lg font-medium transition-colors ${selectedRole === "job_seeker"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
             >
               Job Seeker
             </button>
             <button
               type="button"
               onClick={() => setSelectedRole("recruiter")}
-              className={`py-2 px-4 rounded-lg font-medium transition-colors ${
-                selectedRole === "recruiter"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
+              className={`py-2 px-4 rounded-lg font-medium transition-colors ${selectedRole === "recruiter"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
             >
               Recruiter
             </button>
@@ -126,7 +122,7 @@ export default function SignUpPage() {
               id="fullName"
               type="text"
               placeholder="John Doe"
-              value={fullName}  
+              value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               disabled={isLoading}
               className="h-10"
@@ -188,7 +184,7 @@ export default function SignUpPage() {
             </Link>
           </div>
         </form>
-        </CardContent>
+      </CardContent>
     </Card>
   );
 }
