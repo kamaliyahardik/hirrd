@@ -9,6 +9,7 @@ import Faq from "../components/Home/Faq";
 import CTA from "../components/Home/CTA";
 import Footer from "../components/Home/Footer";
 import HiringProcess from "../components/Home/HiringProcess";
+
 import "../app/globals.css";
 
 export default function LandingPage() {
