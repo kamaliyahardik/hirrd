@@ -25,6 +25,7 @@ export default function EditJobPage() {
     salary_max: "",
     currency: "INR",
     skills: "",
+    vacancies: "1",
   });
   const router = useRouter();
   const params = useParams();
@@ -34,12 +35,12 @@ export default function EditJobPage() {
     const fetchJob = async () => {
       try {
         const {
-            data: { user },
+          data: { user },
         } = await supabase.auth.getUser();
 
         if (!user) {
-            router.push("/auth/login");
-            return;
+          router.push("/auth/login");
+          return;
         }
 
         const { data: job, error } = await supabase
@@ -50,16 +51,16 @@ export default function EditJobPage() {
 
         if (error) throw error;
         if (!job) {
-            alert("Job not found");
-            router.push("/dashboard/jobs");
-            return;
+          alert("Job not found");
+          router.push("/dashboard/jobs");
+          return;
         }
 
         // Verify ownership
         if (job.recruiter_id !== user.id) {
-            alert("Unauthorized");
-            router.push("/dashboard/jobs");
-            return;
+          alert("Unauthorized");
+          router.push("/dashboard/jobs");
+          return;
         }
 
         setFormData({
@@ -71,6 +72,7 @@ export default function EditJobPage() {
           salary_max: job.salary_max ? job.salary_max.toString() : "",
           currency: job.currency,
           skills: job.skills_required ? job.skills_required.join(", ") : "",
+          vacancies: job.vacancies ? job.vacancies.toString() : "1",
         });
       } catch (error) {
         console.error("Error fetching job:", error);
@@ -80,7 +82,7 @@ export default function EditJobPage() {
     };
 
     if (params.id) {
-        fetchJob();
+      fetchJob();
     }
   }, [params.id, router, supabase]);
 
@@ -98,14 +100,15 @@ export default function EditJobPage() {
       const { error } = await supabase
         .from("jobs")
         .update({
-            title: formData.title,
-            description: formData.description,
-            location: formData.location,
-            job_type: formData.job_type,
-            salary_min: formData.salary_min ? Number.parseInt(formData.salary_min) : null,
-            salary_max: formData.salary_max ? Number.parseInt(formData.salary_max) : null,
-            currency: formData.currency,
-            skills_required: formData.skills.split(",").map((s) => s.trim()),
+          title: formData.title,
+          description: formData.description,
+          location: formData.location,
+          job_type: formData.job_type,
+          salary_min: formData.salary_min ? Number.parseInt(formData.salary_min) : null,
+          salary_max: formData.salary_max ? Number.parseInt(formData.salary_max) : null,
+          currency: formData.currency,
+          skills_required: formData.skills.split(",").map((s) => s.trim()),
+          vacancies: Number.parseInt(formData.vacancies) || 1,
         })
         .eq("id", params.id);
 
@@ -123,9 +126,9 @@ export default function EditJobPage() {
 
   if (isLoading) {
     return (
-        <div className="flex justify-center items-center min-h-[50vh]">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
     );
   }
 
@@ -242,17 +245,35 @@ export default function EditJobPage() {
               </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="skills">Required Skills (comma-separated)</Label>
-              <Input
-                id="skills"
-                placeholder="React, TypeScript, Figma, User Research"
-                value={formData.skills}
-                onChange={(e) =>
-                  setFormData({ ...formData, skills: e.target.value })
-                }
-                disabled={isSubmitting}
-              />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-3">
+                <Label htmlFor="skills">Required Skills (comma-separated)</Label>
+                <Input
+                  id="skills"
+                  placeholder="React, TypeScript, Figma, User Research"
+                  value={formData.skills}
+                  onChange={(e) =>
+                    setFormData({ ...formData, skills: e.target.value })
+                  }
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="vacancies">Candidates Needed (Vacancies) *</Label>
+                <Input
+                  id="vacancies"
+                  type="number"
+                  min="1"
+                  placeholder="1"
+                  value={formData.vacancies}
+                  onChange={(e) =>
+                    setFormData({ ...formData, vacancies: e.target.value })
+                  }
+                  disabled={isSubmitting}
+                  required
+                />
+              </div>
             </div>
 
             <div className="grid gap-3">

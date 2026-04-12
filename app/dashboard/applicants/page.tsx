@@ -111,7 +111,8 @@ export default function ApplicantsPage() {
     viewed: "bg-yellow-100 text-yellow-800",
     shortlisted: "bg-green-100 text-green-800",
     rejected: "bg-red-100 text-red-800",
-    hired: "bg-purple-100 text-purple-800",
+    hired: "bg-purple-100 text-purple-800 font-bold",
+    fired: "bg-gray-800 text-white",
   };
 
   const uniqueStatuses = [
@@ -120,6 +121,7 @@ export default function ApplicantsPage() {
     "shortlisted",
     "rejected",
     "hired",
+    "fired",
   ];
 
   if (isLoading) {
@@ -220,7 +222,7 @@ export default function ApplicantsPage() {
                     <Badge
                       className={
                         statusColors[
-                          applicant.status as keyof typeof statusColors
+                        applicant.status as keyof typeof statusColors
                         ]
                       }
                     >
@@ -232,13 +234,29 @@ export default function ApplicantsPage() {
                       onChange={(e) =>
                         handleStatusChange(applicant.id, e.target.value)
                       }
+                      disabled={applicant.status === "fired"}
                       className="flex h-9 w-full rounded-md border border-input bg-background px-2 py-1 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      <option value="applied">Applied</option>
-                      <option value="viewed">Viewed</option>
-                      <option value="shortlisted">Shortlisted</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="hired">Hired</option>
+                      {applicant.status !== "hired" && applicant.status !== "fired" && (
+                        <>
+                          <option value="applied">Applied</option>
+                          <option value="viewed">Viewed</option>
+                          <option value="shortlisted">Shortlisted</option>
+                          <option value="rejected">Rejected</option>
+                          <option value="hired">Hired</option>
+                        </>
+                      )}
+
+                      {applicant.status === "hired" && (
+                        <>
+                          <option value="hired">Hired (Active)</option>
+                          <option value="fired">Fire Candidate</option>
+                        </>
+                      )}
+
+                      {applicant.status === "fired" && (
+                        <option value="fired">Fired / Terminated</option>
+                      )}
                     </select>
 
                     <Button

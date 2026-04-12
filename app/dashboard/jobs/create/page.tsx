@@ -26,6 +26,7 @@ export default function CreateJobPage() {
     salary_max: "",
     currency: "INR",
     skills: "",
+    vacancies: "1",
   });
   const router = useRouter();
   const supabase = createClient();
@@ -78,6 +79,7 @@ export default function CreateJobPage() {
           : null,
         currency: formData.currency,
         skills_required: formData.skills.split(",").map((s) => s.trim()),
+        vacancies: Number.parseInt(formData.vacancies) || 1,
         status: "open",
       });
 
@@ -206,17 +208,35 @@ export default function CreateJobPage() {
               </div>
             </div>
 
-            <div className="grid gap-3">
-              <Label htmlFor="skills">Required Skills (comma-separated)</Label>
-              <Input
-                id="skills"
-                placeholder="React, TypeScript, Figma, User Research"
-                value={formData.skills}
-                onChange={(e) =>
-                  setFormData({ ...formData, skills: e.target.value })
-                }
-                disabled={isSubmitting}
-              />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-3">
+                <Label htmlFor="skills">Required Skills (comma-separated)</Label>
+                <Input
+                  id="skills"
+                  placeholder="React, TypeScript, Figma, User Research"
+                  value={formData.skills}
+                  onChange={(e) =>
+                    setFormData({ ...formData, skills: e.target.value })
+                  }
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="grid gap-3">
+                <Label htmlFor="vacancies">Candidates Needed (Vacancies) *</Label>
+                <Input
+                  id="vacancies"
+                  type="number"
+                  min="1"
+                  placeholder="1"
+                  value={formData.vacancies}
+                  onChange={(e) =>
+                    setFormData({ ...formData, vacancies: e.target.value })
+                  }
+                  disabled={isSubmitting}
+                  required
+                />
+              </div>
             </div>
 
             <div className="grid gap-3">
