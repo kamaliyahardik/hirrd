@@ -14,7 +14,7 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/admin/login");
   }
 
   const { data: userData } = await supabase
@@ -55,12 +55,6 @@ export default async function AdminLayout({
               Jobs
             </Link>
           </div>
-          <Link
-            href="/dashboard"
-            className="text-sm text-primary hover:underline"
-          >
-            Back to App
-          </Link>
         </div>
       </nav>
 

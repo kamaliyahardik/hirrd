@@ -59,7 +59,7 @@ export default function SignUpPage() {
         password,
         options: {
           data: {
-            role: selectedRole,
+            role: selectedRole === "admin" ? "job_seeker" : selectedRole, // Prevent admin signup
             full_name: fullName,
           },
         },
