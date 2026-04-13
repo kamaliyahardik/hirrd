@@ -222,7 +222,7 @@ export default function ApplicantsPage() {
                     <Badge
                       className={
                         statusColors[
-                        applicant.status as keyof typeof statusColors
+                          applicant.status as keyof typeof statusColors
                         ]
                       }
                     >
@@ -246,7 +246,7 @@ export default function ApplicantsPage() {
                           <option value="hired">Hired</option>
                         </>
                       )}
-
+                      
                       {applicant.status === "hired" && (
                         <>
                           <option value="hired">Hired (Active)</option>
